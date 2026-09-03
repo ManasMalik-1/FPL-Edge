@@ -19,5 +19,6 @@ jobs:
       - run: pip install -r requirements.txt
 
       - run: python -m ingestion.run_pipeline
+        
         env:
-          DB_CONNECTION_STRING: ${{ secrets.DB_CONNECTION_STRING }}
+ 	  DATABASE_URL: ${{ secrets.DB_CONNECTION_STRING }}
