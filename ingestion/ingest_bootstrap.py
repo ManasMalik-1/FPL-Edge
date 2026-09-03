@@ -1,108 +1,164 @@
+import logging
 from datetime import datetime, timezone
-from pathlib import Path
-import json
 
-import pandas as pd
-import requests
-
-from .db import load_dataframe
+from ingestion.db import get_engine
+from ingestion.fpl_client import get_bootstrap
+from sqlalchemy import text
 
 
-BASE_URL = "https://fantasy.premierleague.com/api/"
-RAW_DIR = Path("data/raw/bootstrap")
+logger = logging.getLogger(__name__)
 
 
-def fetch_bootstrap():
-    """Fetch the complete bootstrap-static payload from the FPL API."""
+def load_bootstrap():
+    logger.info("Starting FPL bootstrap ingestion")
 
-    url = f"{BASE_URL}bootstrap-static/"
+    data = get_bootstrap()
 
-    response = requests.get(
-        url,
-        timeout=30,
-        headers={
-            "User-Agent": "FPL-Edge/1.0"
-        }
-    )
+    players = data.get("elements", [])
 
-    response.raise_for_status()
+    logger.info("Fetched %s players from FPL API", len(players))
 
-    return response.json()
+    return data
 
 
-def save_raw_json(payload):
-    """Save the complete API response as immutable raw JSON."""
+def save_bootstrap(data, source_file):
+    engine = get_engine()
 
-    RAW_DIR.mkdir(parents=True, exist_ok=True)
+    players = data.get("elements", [])
 
-    ingestion_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    output_file = RAW_DIR / f"{ingestion_date}.json"
-
-    # Don't overwrite an existing raw file.
-    if output_file.exists():
-        print(f"Raw JSON already exists: {output_file}")
-        return output_file
-
-    with output_file.open("w", encoding="utf-8") as file:
-        json.dump(payload, file, ensure_ascii=False, indent=2)
-
-    return output_file
-
-
-def normalize_payload(payload, source_file):
-    """Convert the four required API sections into DataFrames."""
+    if not players:
+        logger.warning("No players found in bootstrap data")
+        return 0
 
     ingested_at = datetime.now(timezone.utc)
 
-    dataframes = {
-        "fpl_players": pd.DataFrame(payload["elements"]),
-        "fpl_teams": pd.DataFrame(payload["teams"]),
-        "fpl_events": pd.DataFrame(payload["events"]),
-        "fpl_element_types": pd.DataFrame(payload["element_types"]),
-    }
-
-    for df in dataframes.values():
-        df["_ingested_at"] = ingested_at
-        df["_source_file"] = str(source_file)
-
-    return dataframes
-
-
-def load_to_postgres(dataframes):
-    """Append normalized data into the PostgreSQL raw schema."""
-
-    for table_name, df in dataframes.items():
-        load_dataframe(
-            df=df,
-            table=table_name,
-            schema="raw",
-            if_exists="append",
-        )
-
-        print(f"Loaded {len(df)} rows into raw.{table_name}")
-
-
-def main():
-    print("Starting FPL bootstrap ingestion...")
-
-    payload = fetch_bootstrap()
-    print("FPL bootstrap API request successful.")
-
-    source_file = save_raw_json(payload)
-    print(f"Raw JSON saved to {source_file}")
-
-    dataframes = normalize_payload(
-        payload,
-        source_file
+    logger.info(
+        "Loading %s players into raw.fpl_players",
+        len(players)
     )
 
-    for table_name, df in dataframes.items():
-        print(f"{table_name}: {len(df)} rows")
+    with engine.begin() as connection:
+        for player in players:
+            connection.execute(
+                text("""
+                    INSERT INTO raw.fpl_players (
+                        id,
+                        first_name,
+                        second_name,
+                        web_name,
+                        team,
+                        element_type,
+                        now_cost,
+                        total_points,
+                        event_points,
+                        form,
+                        selected_by_percent,
+                        minutes,
+                        goals_scored,
+                        assists,
+                        clean_sheets,
+                        goals_conceded,
+                        own_goals,
+                        penalties_saved,
+                        penalties_missed,
+                        yellow_cards,
+                        red_cards,
+                        saves,
+                        bonus,
+                        bps,
+                        influence,
+                        creativity,
+                        threat,
+                        ict_index,
+                        expected_goals,
+                        expected_assists,
+                        expected_goal_involvements,
+                        expected_goals_conceded,
+                        _ingested_at,
+                        _source_file
+                    )
+                    VALUES (
+                        :id,
+                        :first_name,
+                        :second_name,
+                        :web_name,
+                        :team,
+                        :element_type,
+                        :now_cost,
+                        :total_points,
+                        :event_points,
+                        :form,
+                        :selected_by_percent,
+                        :minutes,
+                        :goals_scored,
+                        :assists,
+                        :clean_sheets,
+                        :goals_conceded,
+                        :own_goals,
+                        :penalties_saved,
+                        :penalties_missed,
+                        :yellow_cards,
+                        :red_cards,
+                        :saves,
+                        :bonus,
+                        :bps,
+                        :influence,
+                        :creativity,
+                        :threat,
+                        :ict_index,
+                        :expected_goals,
+                        :expected_assists,
+                        :expected_goal_involvements,
+                        :expected_goals_conceded,
+                        :_ingested_at,
+                        :_source_file
+                    )
+                """),
+                {
+                    "id": player.get("id"),
+                    "first_name": player.get("first_name"),
+                    "second_name": player.get("second_name"),
+                    "web_name": player.get("web_name"),
+                    "team": player.get("team"),
+                    "element_type": player.get("element_type"),
+                    "now_cost": player.get("now_cost"),
+                    "total_points": player.get("total_points"),
+                    "event_points": player.get("event_points"),
+                    "form": player.get("form"),
+                    "selected_by_percent": player.get("selected_by_percent"),
+                    "minutes": player.get("minutes"),
+                    "goals_scored": player.get("goals_scored"),
+                    "assists": player.get("assists"),
+                    "clean_sheets": player.get("clean_sheets"),
+                    "goals_conceded": player.get("goals_conceded"),
+                    "own_goals": player.get("own_goals"),
+                    "penalties_saved": player.get("penalties_saved"),
+                    "penalties_missed": player.get("penalties_missed"),
+                    "yellow_cards": player.get("yellow_cards"),
+                    "red_cards": player.get("red_cards"),
+                    "saves": player.get("saves"),
+                    "bonus": player.get("bonus"),
+                    "bps": player.get("bps"),
+                    "influence": player.get("influence"),
+                    "creativity": player.get("creativity"),
+                    "threat": player.get("threat"),
+                    "ict_index": player.get("ict_index"),
+                    "expected_goals": player.get("expected_goals"),
+                    "expected_assists": player.get("expected_assists"),
+                    "expected_goal_involvements": player.get(
+                        "expected_goal_involvements"
+                    ),
+                    "expected_goals_conceded": player.get(
+                        "expected_goals_conceded"
+                    ),
+                    "_ingested_at": ingested_at,
+                    "_source_file": source_file,
+                }
+            )
 
-    load_to_postgres(dataframes)
+    logger.info(
+        "Bootstrap ingestion completed: %s players loaded",
+        len(players)
+    )
 
-    print("Bootstrap ingestion completed successfully.")
-
-
-if __name__ == "__main__":
-    main()
+    return len(players)

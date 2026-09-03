@@ -1,6 +1,10 @@
-import time
+import logging
 
 import requests
+from tenacity import retry, stop_after_attempt, wait_exponential
+
+
+logger = logging.getLogger(__name__)
 
 
 class FPLClient:
@@ -13,29 +17,49 @@ class FPLClient:
             "User-Agent": "FPL-Edge/1.0"
         })
 
-    def get(self, endpoint, retries=3, backoff_factor=2):
+    @retry(
+        stop=stop_after_attempt(5),
+        wait=wait_exponential(multiplier=1, min=1, max=8),
+    )
+    def get(self, endpoint):
         url = f"{self.BASE_URL}{endpoint}"
 
-        for attempt in range(retries):
-            try:
-                response = self.session.get(
-                    url,
-                    timeout=30
-                )
+        logger.info("Requesting FPL API: %s", endpoint)
 
-                response.raise_for_status()
+        try:
+            response = self.session.get(
+                url,
+                timeout=30
+            )
 
-                return response.json()
+            response.raise_for_status()
 
-            except requests.RequestException:
-                if attempt == retries - 1:
-                    raise
+            logger.info(
+                "FPL API request successful: %s",
+                endpoint
+            )
 
-                sleep_time = backoff_factor ** attempt
+            return response.json()
 
-                print(
-                    f"Request failed. "
-                    f"Retrying in {sleep_time} seconds..."
-                )
+        except requests.RequestException as e:
+            logger.error(
+                "FPL API request failed: %s | Error: %s",
+                endpoint,
+                e
+            )
+            raise
 
-                time.sleep(sleep_time)
+
+def get_bootstrap():
+    client = FPLClient()
+    return client.get("bootstrap-static/")
+
+
+def get_fixtures():
+    client = FPLClient()
+    return client.get("fixtures/")
+
+
+def get_player_history(player_id):
+    client = FPLClient()
+    return client.get(f"element-summary/{player_id}/")

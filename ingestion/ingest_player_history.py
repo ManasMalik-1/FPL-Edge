@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timezone
 from pathlib import Path
 import json
@@ -14,6 +15,9 @@ from .db import (
     start_pipeline_run,
 )
 from .fpl_client import FPLClient
+
+
+logger = logging.getLogger(__name__)
 
 
 PIPELINE_NAME = "player_history"
@@ -38,8 +42,9 @@ def load_player_ids():
 
     latest_file = bootstrap_files[-1]
 
-    print(
-        f"Using bootstrap file: {latest_file}"
+    logger.info(
+        "Using bootstrap file: %s",
+        latest_file
     )
 
     with latest_file.open(
@@ -74,9 +79,10 @@ def save_raw_json(payload, player_id):
     )
 
     if output_file.exists():
-        print(
-            f"Raw history already exists for "
-            f"player {player_id}: {output_file}"
+        logger.info(
+            "Raw history already exists for player %s: %s",
+            player_id,
+            output_file
         )
         return output_file
 
@@ -120,7 +126,7 @@ def normalize_history(
 
 def main():
 
-    print(
+    logger.info(
         "Starting player history ingestion..."
     )
 
@@ -138,14 +144,14 @@ def main():
         )
     )
 
-    print(
-        f"Latest finished GW: "
-        f"{latest_finished_gw}"
+    logger.info(
+        "Latest finished GW: %s",
+        latest_finished_gw
     )
 
-    print(
-        f"Last successfully loaded GW: "
-        f"{last_loaded_gw}"
+    logger.info(
+        "Last successfully loaded GW: %s",
+        last_loaded_gw
     )
 
     # ---------------------------------------------------------
@@ -156,8 +162,9 @@ def main():
         PIPELINE_NAME
     )
 
-    print(
-        f"Started pipeline run: {run_id}"
+    logger.info(
+        "Started pipeline run: %s",
+        run_id
     )
 
     # ---------------------------------------------------------
@@ -173,7 +180,7 @@ def main():
             max_gameweek_loaded=last_loaded_gw
         )
 
-        print(
+        logger.info(
             "No new completed gameweek. "
             "Skipping player history refresh."
         )
@@ -192,9 +199,9 @@ def main():
 
         player_ids = load_player_ids()
 
-        print(
-            f"Found {len(player_ids)} players "
-            f"in bootstrap data."
+        logger.info(
+            "Found %s players in bootstrap data.",
+            len(player_ids)
         )
 
         # -----------------------------------------------------
@@ -205,9 +212,9 @@ def main():
             get_existing_player_fixtures()
         )
 
-        print(
-            f"Existing player/fixture records: "
-            f"{len(existing_keys)}"
+        logger.info(
+            "Existing player/fixture records: %s",
+            len(existing_keys)
         )
 
         client = FPLClient()
@@ -221,9 +228,11 @@ def main():
             start=1
         ):
 
-            print(
-                f"[{index}/{len(player_ids)}] "
-                f"Processing player {player_id}..."
+            logger.info(
+                "[%s/%s] Processing player %s...",
+                index,
+                len(player_ids),
+                player_id
             )
 
             try:
@@ -295,18 +304,19 @@ def main():
 
                 successful += 1
 
-                print(
-                    f"  ✓ New rows loaded: "
-                    f"{len(df)}"
+                logger.info(
+                    "  ✓ New rows loaded: %s",
+                    len(df)
                 )
 
             except Exception as error:
 
                 failed += 1
 
-                print(
-                    f"  ✗ Player {player_id} failed: "
-                    f"{error}"
+                logger.error(
+                    "  ✗ Player %s failed: %s",
+                    player_id,
+                    error
                 )
 
             # -------------------------------------------------
@@ -335,20 +345,20 @@ def main():
                 )
             )
 
-            print()
-            print(
-                "Player history ingestion completed "
-                "with failures."
+            logger.info(
+                "Player history ingestion completed with failures."
             )
-            print(
-                f"Successful: {successful}"
+            logger.info(
+                "Successful: %s",
+                successful
             )
-            print(
-                f"Failed: {failed}"
+            logger.info(
+                "Failed: %s",
+                failed
             )
-            print(
-                f"New rows loaded: "
-                f"{total_rows_loaded}"
+            logger.info(
+                "New rows loaded: %s",
+                total_rows_loaded
             )
 
             return
@@ -364,23 +374,24 @@ def main():
             max_gameweek_loaded=latest_finished_gw
         )
 
-        print()
-        print(
+        logger.info(
             "Player history ingestion completed successfully."
         )
-        print(
-            f"Successful: {successful}"
+        logger.info(
+            "Successful: %s",
+            successful
         )
-        print(
-            f"Failed: {failed}"
+        logger.info(
+            "Failed: %s",
+            failed
         )
-        print(
-            f"New rows loaded: "
-            f"{total_rows_loaded}"
+        logger.info(
+            "New rows loaded: %s",
+            total_rows_loaded
         )
-        print(
-            f"Watermark updated to GW "
-            f"{latest_finished_gw}"
+        logger.info(
+            "Watermark updated to GW %s",
+            latest_finished_gw
         )
 
     except Exception as error:
@@ -395,6 +406,10 @@ def main():
             rows_loaded=total_rows_loaded,
             max_gameweek_loaded=last_loaded_gw,
             error_message=str(error)
+        )
+
+        logger.exception(
+            "Player history ingestion failed unexpectedly."
         )
 
         raise
