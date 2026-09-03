@@ -20,4 +20,6 @@ jobs:
 
       - run: python -m ingestion.run_pipeline
         env:
-          DATABASE_URL: ${{ secrets.DB_CONNECTION_STRING }}
+                - run: python -m ingestion.run_pipeline
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
