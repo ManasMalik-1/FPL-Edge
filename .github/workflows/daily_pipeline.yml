@@ -19,7 +19,6 @@ jobs:
       - run: pip install -r requirements.txt
 
       - run: python -m ingestion.run_pipeline
-        env:
-                - run: python -m ingestion.run_pipeline
+        
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
