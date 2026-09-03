@@ -1,0 +1,70 @@
+version: 2
+
+models:
+
+  - name: player_performance
+    columns:
+      - name: player_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: fixtures_played
+        data_tests:
+          - not_null
+
+      - name: minutes
+        data_tests:
+          - not_null
+
+      - name: total_points
+        data_tests:
+          - not_null
+
+      - name: points_per_match
+        data_tests:
+          - not_null
+
+  - name: player_value
+    columns:
+      - name: player_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: player_name
+        data_tests:
+          - not_null
+
+      - name: price
+        data_tests:
+          - not_null
+
+      - name: points_per_million
+        data_tests:
+          - not_null
+
+  - name: player_fixture_context
+    columns:
+      - name: player_id
+        data_tests:
+          - not_null
+
+      - name: fixture_id
+        data_tests:
+          - not_null
+
+  - name: player_recommendations
+    columns:
+      - name: player_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: player_name
+        data_tests:
+          - not_null
+
+      - name: recommendation_score_rounded
+        data_tests:
+          - not_null

@@ -69,17 +69,17 @@ final as (
         latest_gameweek,
 
         round(
-            case
-                when minutes > 0
-                then total_points * 90.0 / minutes
-                else 0
-            end,
-            2
-        ) as points_per_90,
+   	   case
+       		 when fixtures_played > 0
+      		  then total_points * 1.0 / fixtures_played
+     		   else 0
+  	  end,
+    	  2
+	) as points_per_match,
 
         round(
             case
-                when minutes > 0
+                when minutes >= 180
                 then xg * 90.0 / minutes
                 else 0
             end,
@@ -88,7 +88,7 @@ final as (
 
         round(
             case
-                when minutes > 0
+                when minutes >= 180
                 then xa * 90.0 / minutes
                 else 0
             end,
@@ -98,6 +98,5 @@ final as (
     from performance
 
 )
-
 select *
 from final
