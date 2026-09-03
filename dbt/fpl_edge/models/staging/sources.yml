@@ -1,0 +1,11 @@
+version: 2
+
+sources:
+  - name: raw
+    schema: raw
+    tables:
+      - name: fpl_players
+      - name: fpl_teams
+      - name: fpl_events
+      - name: fpl_fixtures
+      - name: fpl_player_history
