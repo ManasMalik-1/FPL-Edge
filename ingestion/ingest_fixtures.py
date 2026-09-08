@@ -2,9 +2,10 @@ import json
 import logging
 from datetime import datetime, timezone
 
+from sqlalchemy import text
+
 from ingestion.db import get_engine
 from ingestion.fpl_client import get_fixtures
-from sqlalchemy import text
 
 
 logger = logging.getLogger(__name__)
@@ -33,11 +34,23 @@ def save_fixtures(fixtures, source_file):
     ingested_at = datetime.now(timezone.utc)
 
     logger.info(
-        "Loading %s fixtures into raw.fpl_fixtures",
+        "Refreshing raw.fpl_fixtures with %s fixtures",
         len(fixtures)
     )
 
     with engine.begin() as connection:
+
+        # Remove the previous fixture snapshot.
+        # The FPL API returns the complete current fixture list,
+        # so we can safely replace the snapshot.
+        connection.execute(
+            text("""
+                DELETE FROM raw.fpl_fixtures
+            """)
+        )
+
+        logger.info("Previous fixture snapshot removed")
+
         for fixture in fixtures:
             connection.execute(
                 text("""
@@ -102,9 +115,11 @@ def save_fixtures(fixtures, source_file):
                     "team_a_score": fixture.get("team_a_score"),
                     "team_h": fixture.get("team_h"),
                     "team_h_score": fixture.get("team_h_score"),
-                    "stats": json.dumps(
-                        fixture.get("stats")
-                    ) if fixture.get("stats") is not None else None,
+                    "stats": (
+                        json.dumps(fixture.get("stats"))
+                        if fixture.get("stats") is not None
+                        else None
+                    ),
                     "team_h_difficulty": fixture.get(
                         "team_h_difficulty"
                     ),
