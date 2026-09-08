@@ -26,6 +26,23 @@ jobs:
       - name: Install dbt
         run: pip install dbt-postgres
 
+      - name: Create dbt profile
+        working-directory: dbt/fpl_edge
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml <<EOF
+          fpl_edge:
+            target: dev
+            outputs:
+              dev:
+                type: postgres
+                url: $DATABASE_URL
+                schema: analytics
+                threads: 1
+          EOF
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
       - name: Run dbt
         working-directory: dbt/fpl_edge
         run: dbt build
