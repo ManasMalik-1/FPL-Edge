@@ -18,7 +18,16 @@ jobs:
 
       - run: pip install -r requirements.txt
 
-      - run: python -m ingestion.run_pipeline
-        
+      - name: Run FPL ingestion pipeline
+        run: python -m ingestion.run_pipeline
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Install dbt
+        run: pip install dbt-postgres
+
+      - name: Run dbt
+        working-directory: dbt/fpl_edge
+        run: dbt build
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}

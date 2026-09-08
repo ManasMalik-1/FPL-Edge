@@ -2,6 +2,7 @@ import logging
 
 from ingestion.ingest_bootstrap import load_bootstrap, save_bootstrap
 from ingestion.ingest_fixtures import load_fixtures, save_fixtures
+from ingestion.ingest_player_history import main as ingest_player_history
 
 
 logging.basicConfig(
@@ -28,6 +29,9 @@ def main():
         fixtures,
         "api://fixtures/"
     )
+
+    # Player history
+    ingest_player_history()
 
     logger.info("FPL Edge ingestion pipeline completed successfully")
 
