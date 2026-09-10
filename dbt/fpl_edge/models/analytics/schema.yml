@@ -16,10 +16,18 @@ models:
       - name: team_h
         data_tests:
           - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_fpl__teams')
+                field: team_id
 
       - name: team_a
         data_tests:
           - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_fpl__teams')
+                field: team_id
 
       - name: kickoff_time
         data_tests:
@@ -72,10 +80,18 @@ models:
       - name: player_id
         data_tests:
           - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_fpl__players')
+                field: player_id
 
       - name: fixture_id
         data_tests:
           - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_fpl__fixtures')
+                field: fixture_id
 
   - name: player_recommendations
     columns:
@@ -83,6 +99,10 @@ models:
         data_tests:
           - not_null
           - unique
+          - relationships:
+              arguments:
+                to: ref('stg_fpl__players')
+                field: player_id
 
       - name: player_name
         data_tests:
