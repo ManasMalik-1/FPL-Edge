@@ -3,9 +3,34 @@ version: 2
 sources:
   - name: raw
     schema: raw
+
     tables:
       - name: fpl_players
+        loaded_at_field: _ingested_at
+        freshness:
+          warn_after: {count: 36, period: hour}
+          error_after: {count: 72, period: hour}
+
       - name: fpl_teams
+        loaded_at_field: _ingested_at
+        freshness:
+          warn_after: {count: 36, period: hour}
+          error_after: {count: 72, period: hour}
+
       - name: fpl_events
+        loaded_at_field: _ingested_at
+        freshness:
+          warn_after: {count: 36, period: hour}
+          error_after: {count: 72, period: hour}
+
       - name: fpl_fixtures
+        loaded_at_field: _ingested_at
+        freshness:
+          warn_after: {count: 36, period: hour}
+          error_after: {count: 72, period: hour}
+
       - name: fpl_player_history
+        loaded_at_field: _ingested_at
+        freshness:
+          warn_after: {count: 36, period: hour}
+          error_after: {count: 72, period: hour}

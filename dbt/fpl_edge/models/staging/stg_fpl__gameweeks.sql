@@ -1,0 +1,23 @@
+select
+    id as gameweek,
+    name,
+    deadline_time,
+    release_time,
+    average_entry_score,
+    finished,
+    data_checked,
+    highest_scoring_entry,
+    highest_score,
+    is_previous,
+    is_current,
+    is_next,
+    ranked_count,
+    transfers_made,
+    most_selected,
+    most_transferred_in,
+    top_element,
+    most_captained,
+    most_vice_captained,
+    _ingested_at,
+    _source_file
+from {{ source('raw', 'fpl_events') }}

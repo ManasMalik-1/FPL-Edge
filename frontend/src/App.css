@@ -1,0 +1,343 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  background: #0b0f14;
+  color: #f5f7fa;
+}
+
+button,
+select {
+  font: inherit;
+}
+
+.app {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 80% 0%, rgba(0, 255, 150, 0.08), transparent 30%),
+    #0b0f14;
+}
+
+.header {
+  height: 76px;
+  padding: 0 48px;
+  border-bottom: 1px solid #202730;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(11, 15, 20, 0.95);
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 24px;
+  letter-spacing: -0.5px;
+}
+
+.header p {
+  margin: 3px 0 0;
+  color: #87919d;
+  font-size: 13px;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1px solid #26302b;
+  border-radius: 999px;
+  color: #aeb8b2;
+  font-size: 13px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #32d583;
+  box-shadow: 0 0 10px rgba(50, 213, 131, 0.6);
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 48px;
+}
+
+.hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 36px;
+  margin-bottom: 32px;
+  border: 1px solid #202730;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #111820, #0e141b);
+}
+
+.eyebrow {
+  color: #5ee6a4;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.hero h2 {
+  margin: 12px 0 8px;
+  font-size: 42px;
+  letter-spacing: -1.5px;
+}
+
+.hero p {
+  margin: 0;
+  color: #8d98a5;
+  max-width: 600px;
+  line-height: 1.6;
+}
+
+.hero-stat {
+  min-width: 150px;
+  padding: 20px;
+  border-left: 1px solid #29313a;
+  text-align: center;
+}
+
+.hero-stat strong {
+  display: block;
+  font-size: 38px;
+}
+
+.hero-stat span {
+  color: #7f8a96;
+  font-size: 12px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.section-header h3 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.section-header p {
+  margin: 5px 0 0;
+  color: #78838f;
+  font-size: 13px;
+}
+
+select {
+  background: #111820;
+  color: #f5f7fa;
+  border: 1px solid #29323c;
+  border-radius: 8px;
+  padding: 9px 14px;
+  outline: none;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  border: 1px solid #202730;
+  border-radius: 14px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 950px;
+}
+
+thead {
+  background: #111820;
+}
+
+th {
+  text-align: left;
+  padding: 15px 18px;
+  color: #727e8b;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 600;
+}
+
+td {
+  padding: 16px 18px;
+  border-top: 1px solid #1d252e;
+  color: #b9c1c9;
+  font-size: 14px;
+}
+
+tbody tr:hover {
+  background: #111820;
+}
+
+.rank {
+  color: #68737f;
+  width: 45px;
+}
+
+.player strong {
+  color: #f4f6f8;
+}
+
+.position {
+  padding: 4px 8px;
+  border-radius: 5px;
+  background: #1a222b;
+  color: #aeb8c3;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.form {
+  color: #5ee6a4;
+  font-weight: 700;
+}
+
+.difficulty {
+  display: inline-block;
+  padding: 5px 9px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.difficulty-1,
+.difficulty-2 {
+  background: rgba(50, 213, 131, 0.12);
+  color: #5ee6a4;
+}
+
+.difficulty-3 {
+  background: rgba(255, 193, 7, 0.12);
+  color: #f5c451;
+}
+
+.difficulty-4,
+.difficulty-5 {
+  background: rgba(255, 92, 92, 0.12);
+  color: #ff8585;
+}
+
+.score {
+  display: inline-block;
+  min-width: 48px;
+  padding: 6px 9px;
+  text-align: center;
+  border-radius: 7px;
+  background: rgba(94, 230, 164, 0.12);
+  color: #5ee6a4;
+  font-weight: 800;
+}
+
+.message,
+.error {
+  padding: 30px;
+  text-align: center;
+  border: 1px solid #202730;
+  border-radius: 14px;
+  background: #111820;
+}
+
+.error {
+  color: #ff8585;
+}
+
+footer {
+  padding: 30px;
+  text-align: center;
+  color: #58636f;
+  font-size: 12px;
+}
+
+@media (max-width: 700px) {
+  .header {
+    padding: 0 20px;
+  }
+
+  .container {
+    padding: 20px;
+  }
+
+  .hero {
+    padding: 24px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 25px;
+  }
+
+  .hero h2 {
+    font-size: 32px;
+  }
+
+  .hero-stat {
+    border-left: none;
+    border-top: 1px solid #29313a;
+    width: 100%;
+    padding-top: 20px;
+  }
+}
+/* Fixture information */
+.gameweek {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.opponent {
+  min-width: 110px;
+  white-space: nowrap;
+}
+
+.opponent strong {
+  display: block;
+}
+
+.opponent span {
+  display: block;
+  margin-top: 3px;
+  color: #718096;
+  font-size: 0.75rem;
+}
+
+.venue {
+  display: inline-block;
+  padding: 5px 9px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.venue.home {
+  background: rgba(34, 197, 94, 0.12);
+  color: #4ade80;
+}
+
+.venue.away {
+  background: rgba(148, 163, 184, 0.12);
+  color: #94a3b8;
+}
+
+/* Keep the recommendation table readable */
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  min-width: 1050px;
+}
+
+th,
+td {
+  white-space: nowrap;
+}

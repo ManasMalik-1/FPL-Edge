@@ -59,7 +59,7 @@ renamed as (
 
         form,
         points_per_game,
-        selected_by_percent,
+        cast(selected_by_percent as numeric) as selected_by_percent,
         transfers_in,
         transfers_out,
 

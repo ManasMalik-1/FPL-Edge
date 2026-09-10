@@ -1,7 +1,7 @@
 with players as (
 
     select *
-    from {{ ref('stg_fpl_players') }}
+    from {{ ref('stg_fpl__players') }}
 
 ),
 

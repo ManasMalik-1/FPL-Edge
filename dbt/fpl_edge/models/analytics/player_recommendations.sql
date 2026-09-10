@@ -36,13 +36,57 @@ fixtures as (
 
     select
         player_id,
-        min(fixture_difficulty) as next_fixture_difficulty,
-        avg(fixture_difficulty) as avg_fixture_difficulty
+        gameweek,
+        opponent_team_id,
+        is_home,
+        fixture_difficulty,
+
+        avg(fixture_difficulty) over (
+            partition by player_id
+        ) as avg_fixture_difficulty,
+
+        avg(opponent_defence_strength) over (
+            partition by player_id
+        ) as avg_opponent_defence_strength,
+
+        first_value(opponent_team_id) over (
+            partition by player_id
+            order by kickoff_time
+        ) as next_opponent_team_id,
+
+        first_value(gameweek) over (
+            partition by player_id
+            order by kickoff_time
+        ) as next_gameweek,
+
+        first_value(is_home) over (
+            partition by player_id
+            order by kickoff_time
+        ) as next_is_home,
+
+        first_value(fixture_difficulty) over (
+            partition by player_id
+            order by kickoff_time
+        ) as next_fixture_difficulty
+
     from {{ ref('player_fixture_context') }}
 
     where finished = false
 
-    group by player_id
+),
+
+fixture_summary as (
+
+    select distinct
+        player_id,
+        next_gameweek,
+        next_opponent_team_id,
+        next_is_home,
+        next_fixture_difficulty,
+        avg_fixture_difficulty,
+        avg_opponent_defence_strength
+
+    from fixtures
 
 ),
 
@@ -73,15 +117,19 @@ combined as (
         v.form,
         v.selected_by_percent,
 
-        coalesce(f.next_fixture_difficulty, 5) as next_fixture_difficulty,
-        coalesce(f.avg_fixture_difficulty, 5) as avg_fixture_difficulty
+        f.next_gameweek,
+        f.next_opponent_team_id,
+        f.next_is_home,
+        f.next_fixture_difficulty,
+        f.avg_fixture_difficulty,
+        f.avg_opponent_defence_strength
 
     from value v
 
     left join performance p
         on v.player_id = p.player_id
 
-    left join fixtures f
+    left join fixture_summary f
         on v.player_id = f.player_id
 
 ),
@@ -92,15 +140,18 @@ scored as (
         *,
 
         (
-            coalesce(points_per_million, 0) * 0.30
+            coalesce(points_per_million, 0) * 0.25
             +
-            coalesce(points_per_match, 0) * 0.25
+            coalesce(points_per_match, 0) * 0.20
             +
             coalesce(xgi_per_million, 0) * 0.15
             +
             coalesce(nullif(form, '')::numeric, 0) * 0.15
             +
-            (6 - next_fixture_difficulty) * 0.15
+            (6 - coalesce(next_fixture_difficulty, 5)) * 0.10
+            +
+            (6 - coalesce(avg_opponent_defence_strength, 5)) * 0.15
+
         ) as recommendation_score
 
     from combined
@@ -108,8 +159,26 @@ scored as (
 )
 
 select
-    *,
-    round(recommendation_score, 2) as recommendation_score_rounded
+    player_id,
+    player_name,
+    position_id,
+    price,
+
+    form,
+    selected_by_percent,
+
+    next_gameweek,
+    next_opponent_team_id,
+    next_is_home,
+    next_fixture_difficulty,
+
+    avg_fixture_difficulty,
+    avg_opponent_defence_strength,
+
+    round(recommendation_score, 2)
+        as recommendation_score_rounded,
+
+    recommendation_score
 
 from scored
 

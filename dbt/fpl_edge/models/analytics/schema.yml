@@ -2,6 +2,29 @@ version: 2
 
 models:
 
+  - name: fixture_difficulty
+    columns:
+      - name: fixture_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: gameweek
+        data_tests:
+          - not_null
+
+      - name: team_h
+        data_tests:
+          - not_null
+
+      - name: team_a
+        data_tests:
+          - not_null
+
+      - name: kickoff_time
+        data_tests:
+          - not_null
+
   - name: player_performance
     columns:
       - name: player_id

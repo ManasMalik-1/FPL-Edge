@@ -15,7 +15,7 @@ with fixtures as (
             order by kickoff_time desc
         ) as rn
 
-    from {{ ref('stg_fpl_fixtures') }}
+    from {{ ref('stg_fpl__fixtures') }}
 
 ),
 

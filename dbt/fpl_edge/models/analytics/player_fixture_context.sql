@@ -8,7 +8,7 @@ with players as (
         price,
         total_points,
         form
-    from {{ ref('stg_fpl_players') }}
+    from {{ ref('stg_fpl__players') }}
 
 ),
 
@@ -24,6 +24,17 @@ fixtures as (
         kickoff_time,
         finished
     from {{ ref('fixture_difficulty') }}
+
+),
+
+team_strength as (
+
+    select
+        team_id,
+        attack_strength,
+        defence_strength,
+        points_per_match
+    from {{ ref('team_strength') }}
 
 ),
 
@@ -55,7 +66,14 @@ player_fixtures as (
                 then f.team_a
             when p.team_id = f.team_a
                 then f.team_h
-        end as opponent_team_id
+        end as opponent_team_id,
+
+        case
+            when p.team_id = f.team_h
+                then true
+            when p.team_id = f.team_a
+                then false
+        end as is_home
 
     from players p
 
@@ -63,7 +81,23 @@ player_fixtures as (
         on p.team_id = f.team_h
         or p.team_id = f.team_a
 
+),
+
+enriched as (
+
+    select
+        pf.*,
+
+        ts.attack_strength as opponent_attack_strength,
+        ts.defence_strength as opponent_defence_strength,
+        ts.points_per_match as opponent_points_per_match
+
+    from player_fixtures pf
+
+    left join team_strength ts
+        on pf.opponent_team_id = ts.team_id
+
 )
 
 select *
-from player_fixtures
+from enriched
