@@ -15,6 +15,6 @@
 }}
 
 select *
-from {{ ref('stg_fpl__players') }}
+from {{ ref('stg_fpl__players_scd_test') }}
 
 {% endsnapshot %}
