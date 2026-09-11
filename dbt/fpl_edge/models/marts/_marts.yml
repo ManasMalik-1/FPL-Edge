@@ -1,0 +1,109 @@
+version: 2
+
+models:
+
+  - name: dim_player
+    description: "Player dimension built from the player snapshot."
+
+    columns:
+      - name: player_id
+        tests:
+          - unique
+          - not_null
+
+      - name: status
+        tests:
+          - accepted_values:
+              values: ['a', 'd', 'i', 's', 'u', 'n']
+
+      - name: position
+        tests:
+          - accepted_values:
+              values: ['GKP', 'DEF', 'MID', 'FWD']
+
+
+  - name: dim_team
+    description: "Team dimension."
+
+    columns:
+      - name: team_id
+        tests:
+          - unique
+          - not_null
+
+
+  - name: dim_gameweek
+    description: "Gameweek dimension."
+
+    columns:
+      - name: gameweek
+        tests:
+          - unique
+          - not_null
+
+
+  - name: dim_fixture
+    description: "Fixture dimension."
+
+    columns:
+      - name: fixture_id
+        tests:
+          - unique
+          - not_null
+
+
+  - name: fct_player_gameweek
+    description: "Player performance by gameweek."
+
+    columns:
+      - name: player_gameweek_key
+        tests:
+          - unique
+          - not_null
+
+      - name: player_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_player')
+              field: player_id
+
+      - name: gameweek
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_gameweek')
+              field: gameweek
+
+      - name: fixture
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_fixture')
+              field: fixture_id
+
+      - name: opponent_team
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_team')
+              field: team_id
+
+
+  - name: fct_price_change
+    description: "Player price changes derived from snapshot history."
+
+    columns:
+      - name: player_id
+        tests:
+          - not_null
+
+
+  - name: mart_player_value
+    description: "Analytical player value layer feeding Power BI."
+
+    columns:
+      - name: player_id
+        tests:
+          - unique
+          - not_null
