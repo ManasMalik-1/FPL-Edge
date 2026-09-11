@@ -24,7 +24,7 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Install dbt
-        run: pip install dbt-postgres
+        run: pip install "dbt-core==1.12.3" "dbt-postgres==1.11.0"
 
       - name: Create dbt profile
         working-directory: dbt/fpl_edge
