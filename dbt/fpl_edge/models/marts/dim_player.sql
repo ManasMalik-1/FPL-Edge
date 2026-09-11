@@ -55,3 +55,5 @@ select
     end as is_current
 
 from {{ ref('player_snapshot') }}
+
+where dbt_valid_to is null
