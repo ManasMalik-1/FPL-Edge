@@ -58,6 +58,14 @@ jobs:
           print("dbt profile created successfully")
           PY
 
-      - name: Run dbt
+      - name: Run dbt snapshot
         working-directory: dbt/fpl_edge
-        run: dbt build
+        run: dbt snapshot
+
+      - name: Run dbt models
+        working-directory: dbt/fpl_edge
+        run: dbt run
+
+      - name: Run dbt tests
+        working-directory: dbt/fpl_edge
+        run: dbt test

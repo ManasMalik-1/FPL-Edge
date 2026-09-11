@@ -3,65 +3,139 @@ version: 2
 models:
 
   - name: dim_player
-    description: "Player dimension built from the player snapshot."
+    description: "Player dimension containing the current and historical attributes of FPL players, sourced from the player snapshot."
 
     columns:
       - name: player_id
+        description: "Unique identifier for the FPL player."
         tests:
           - unique
           - not_null
 
+      - name: player_name
+        description: "Display name of the FPL player."
+
+      - name: team_id
+        description: "Identifier of the team the player belongs to."
+
+      - name: position_id
+        description: "FPL position identifier for the player."
+
+      - name: price
+        description: "Player price in millions of pounds."
+
       - name: status
+        description: "Current FPL availability status of the player."
         tests:
           - accepted_values:
               values: ['a', 'd', 'i', 's', 'u', 'n']
 
-      - name: position
-        tests:
-          - accepted_values:
-              values: ['GKP', 'DEF', 'MID', 'FWD']
+      - name: valid_from
+        description: "Timestamp from which this snapshot version of the player record became valid."
+
+      - name: valid_to
+        description: "Timestamp when this snapshot version stopped being valid; null indicates the current version."
+
+      - name: is_current
+        description: "Boolean flag identifying whether this is the current version of the player record."
 
 
   - name: dim_team
-    description: "Team dimension."
+    description: "Team dimension containing FPL team identifiers, names, strengths, form, and performance attributes."
 
     columns:
       - name: team_id
+        description: "Unique identifier for the FPL team."
         tests:
           - unique
           - not_null
+
+      - name: team_name
+        description: "Full name of the FPL team."
+
+      - name: short_name
+        description: "Short name or abbreviation of the FPL team."
+
+      - name: code
+        description: "Official FPL team code."
+
+      - name: position
+        description: "Team position or ranking attribute."
+
+      - name: points
+        description: "Total league points for the team."
+
+      - name: strength
+        description: "Overall FPL strength rating for the team."
 
 
   - name: dim_gameweek
-    description: "Gameweek dimension."
+    description: "Gameweek dimension containing FPL gameweek schedules, status, and scoring information."
 
     columns:
       - name: gameweek
+        description: "Unique FPL gameweek number."
         tests:
           - unique
           - not_null
+
+      - name: name
+        description: "Display name of the gameweek."
+
+      - name: deadline_time
+        description: "FPL deadline timestamp for the gameweek."
+
+      - name: finished
+        description: "Indicates whether the gameweek has finished."
+
+      - name: data_checked
+        description: "Indicates whether the gameweek data has been checked by the FPL API."
 
 
   - name: dim_fixture
-    description: "Fixture dimension."
+    description: "Fixture dimension containing match details, teams, scores, kickoff times, and fixture difficulty."
 
     columns:
       - name: fixture_id
+        description: "Unique identifier for the fixture."
         tests:
           - unique
           - not_null
 
+      - name: gameweek
+        description: "Gameweek in which the fixture is played."
+
+      - name: team_h
+        description: "FPL team identifier for the home team."
+
+      - name: team_a
+        description: "FPL team identifier for the away team."
+
+      - name: kickoff_time
+        description: "Scheduled kickoff timestamp of the fixture."
+
+      - name: finished
+        description: "Indicates whether the fixture has been completed."
+
+      - name: team_h_difficulty
+        description: "FPL difficulty rating for the home team's fixture."
+
+      - name: team_a_difficulty
+        description: "FPL difficulty rating for the away team's fixture."
+
 
   - name: fct_player_gameweek
-    description: "Player performance by gameweek."
+    description: "Fact table containing player-level FPL performance and statistics for each gameweek fixture."
 
     columns:
       - name: player_gameweek_key
+        description: "Composite key uniquely identifying a player-gameweek-fixture record."
         tests:
           - unique
           - not_null
 
       - name: player_id
+        description: "FPL identifier of the player associated with the performance record."
         tests:
           - not_null
           - relationships:
@@ -69,6 +143,7 @@ models:
               field: player_id
 
       - name: gameweek
+        description: "FPL gameweek associated with the performance record."
         tests:
           - not_null
           - relationships:
@@ -76,6 +151,7 @@ models:
               field: gameweek
 
       - name: fixture
+        description: "Fixture identifier associated with the player's gameweek performance."
         tests:
           - not_null
           - relationships:
@@ -83,27 +159,96 @@ models:
               field: fixture_id
 
       - name: opponent_team
+        description: "FPL identifier of the opponent team for the fixture."
         tests:
           - not_null
           - relationships:
               to: ref('dim_team')
               field: team_id
 
+      - name: total_points
+        description: "FPL points scored by the player in the fixture."
+
+      - name: minutes
+        description: "Number of minutes played by the player in the fixture."
+
+      - name: goals_scored
+        description: "Number of goals scored by the player."
+
+      - name: assists
+        description: "Number of assists recorded by the player."
+
+      - name: value
+        description: "Player price value recorded for the gameweek."
+
 
   - name: fct_price_change
-    description: "Player price changes derived from snapshot history."
+    description: "Fact table recording changes in player prices between consecutive snapshot versions."
 
     columns:
       - name: player_id
+        description: "FPL identifier of the player whose price changed."
         tests:
           - not_null
+
+      - name: price
+        description: "Player price at the current snapshot version."
+
+      - name: previous_price
+        description: "Player price at the immediately preceding snapshot version."
+
+      - name: price_change
+        description: "Difference between the current player price and the previous price."
+
+      - name: valid_from
+        description: "Timestamp from which the current price version became valid."
+
+      - name: valid_to
+        description: "Timestamp when the current price version stopped being valid."
 
 
   - name: mart_player_value
-    description: "Analytical player value layer feeding Power BI."
+    description: "Analytical player value layer combining current player attributes, recent form, team information, and upcoming fixture difficulty for Power BI."
 
     columns:
       - name: player_id
+        description: "Unique identifier for the player."
         tests:
           - unique
           - not_null
+
+      - name: player_name
+        description: "Display name of the player."
+
+      - name: team_id
+        description: "Identifier of the player's current team."
+
+      - name: team_name
+        description: "Name of the player's current team."
+
+      - name: position_id
+        description: "FPL position identifier of the player."
+
+      - name: price
+        description: "Current player price in millions of pounds."
+
+      - name: total_points
+        description: "Player's cumulative FPL points."
+
+      - name: form
+        description: "Player's current FPL form rating."
+
+      - name: points_per_game
+        description: "Average FPL points scored per game."
+
+      - name: value_form
+        description: "FPL value metric based on recent player form."
+
+      - name: value_season
+        description: "FPL value metric based on season-long performance."
+
+      - name: rolling_5_gw_points
+        description: "Total FPL points accumulated by the player across the latest five gameweeks."
+
+      - name: avg_difficulty_next5
+        description: "Average fixture difficulty across the player's next five gameweeks."
