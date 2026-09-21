@@ -309,7 +309,7 @@ Interactive slicers allow the player pool to be filtered by:
 
 A player comparison table complements the scatter plot to make individual player analysis easier.
 
-![Squad Value Finder](https://raw.githubusercontent.com/ManasMalik-1/FPL-Edge/main/docs/images/squad_value_finder.png)
+![Squad Value Finder](https://github.com/ManasMalik-1/FPL-Edge/blob/main/docs/images/squad_value_finder.png?raw=true)
 
 ### 2. Price Watch
 
@@ -326,7 +326,7 @@ It combines historical price observations with the price-change model to show:
 
 The historical price model combines an initial gameweek price seed with subsequently ingested FPL observations to reconstruct price movement from the beginning of the season.
 
-![Price Watch](https://raw.githubusercontent.com/ManasMalik-1/FPL-Edge/main/docs/images/price_watch.png)
+![Price Watch](https://github.com/ManasMalik-1/FPL-Edge/blob/main/docs/images/price_watch.png?raw=true)
 
 ### 3. Fixture Planner
 
@@ -342,7 +342,7 @@ The view uses:
 
 This connects fixture difficulty with player analysis instead of treating fixtures as an isolated dataset.
 
-![Fixture Planner](https://raw.githubusercontent.com/ManasMalik-1/FPL-Edge/main/docs/images/fixture_planner.png)
+![Fixture Planner](https://github.com/ManasMalik-1/FPL-Edge/blob/main/docs/images/fixture_planner.png?raw=true)
 
 ---
 
