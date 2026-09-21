@@ -279,6 +279,7 @@ Python Ingestion
        │
        ▼
     dbt Test
+```
 
 ---
 
